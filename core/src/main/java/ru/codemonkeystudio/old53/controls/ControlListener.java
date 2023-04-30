@@ -2,11 +2,14 @@ package ru.codemonkeystudio.old53.controls;
 
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
+import ru.codemonkeystudio.old53.Application;
 
 public class ControlListener implements ControllerListener {
     @Override
     public void connected(Controller controller) {
-        controller.addListener(new PlayerControllerGamepad(controller));
+        PlayerControllerGamepad pc = new PlayerControllerGamepad(controller);
+        Application.controlManager.playerControllers.add(pc);
+        controller.addListener(pc);
     }
 
     @Override

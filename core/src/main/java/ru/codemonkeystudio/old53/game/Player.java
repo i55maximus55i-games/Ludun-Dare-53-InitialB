@@ -2,6 +2,7 @@ package ru.codemonkeystudio.old53.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -30,6 +31,10 @@ public class Player {
     Texture carTexture;
     Sprite carSprite;
 
+    float animTimer = 0f;
+    Texture fire;
+    Animation<TextureRegion> fireAnimation;
+
     // Man
     Vector2 manPos = new Vector2();
     Vector2 manSpeed = new Vector2();
@@ -52,10 +57,23 @@ public class Player {
 
         bulletTexture = new Texture("bullet.png");
 
+        fire = new Texture("fire_0.png");
+        TextureRegion[][] tmp = TextureRegion.split(fire, 16, 16);
+        TextureRegion[] fireFrames = new TextureRegion[32];
+        int index = 0;
+        for (int i = 0; i < 32; i++) {
+            for (int j = 0; j < 1; j++) {
+                fireFrames[index++] = tmp[i][j];
+            }
+        }
+        fireAnimation = new Animation<>(0.03f, fireFrames);
+
         this.playerController = playerController;
     }
 
     public void update(Float delta) {
+        animTimer += delta;
+
         if (playerState == PlayerState.carStand) {
             if (playerController.throttle() > 0.1f) {
                 playerState = PlayerState.carFly;
@@ -88,6 +106,7 @@ public class Player {
                 playerState = PlayerState.manEscape;
             }
         } else if (playerState == PlayerState.manEscape) {
+            // TODO: 30.04.2023 Физика
             // TODO: 29.04.2023 Мужик летит, может открыть парашют, может ноги в жопу вбить
             // TODO: 29.04.2023 Можно на парашюте двигаться влево/вправо
             // TODO: 30.04.2023 Смэрть
@@ -97,13 +116,32 @@ public class Player {
     }
 
     void draw(SpriteBatch batch) {
-        if (playerState == PlayerState.carStand || playerState == PlayerState.carFly) {
-            carSprite.setPosition(carPos.x - carSprite.getWidth() / 2f, carPos.y);
-            carSprite.setOrigin(carSprite.getWidth() / 2, carSprite.getHeight() / 2);
-            carSprite.setRotation(dir);
-            carSprite.draw(batch);
-            // TODO: 30.04.2023 Отображение урона
+        // Car render
+        carSprite.setPosition(carPos.x - carSprite.getWidth() / 2f, carPos.y - carSprite.getHeight() / 2f);
+        carSprite.setOrigin(carSprite.getWidth() / 2, carSprite.getHeight() / 2);
+        carSprite.setRotation(dir);
+        carSprite.draw(batch); // TODO: 30.04.2023 Рисовать повреждения
+
+        if (hp == 2) {
+            batch.setColor(0.1f, 0.1f, 0.1f, 1f);
+            Vector2 t = carPos.cpy().sub(carSprite.getHeight() / 2f, carSprite.getHeight() / 2f);
+            batch.draw(fireAnimation.getKeyFrame(animTimer, true), t.x, t.y, carSprite.getHeight(), carSprite.getHeight());
+            t = carPos.cpy().sub(carSprite.getHeight() / 2f, carSprite.getHeight() / 2f).add(new Vector2(carSprite.getHeight(), 0f).setAngleDeg(dir));
+            batch.draw(fireAnimation.getKeyFrame(animTimer, true), t.x, t.y, carSprite.getHeight(), carSprite.getHeight());
+            t = carPos.cpy().sub(carSprite.getHeight() / 2f, carSprite.getHeight() / 2f).add(new Vector2(carSprite.getHeight(), 0f).setAngleDeg(dir + 180));
+            batch.draw(fireAnimation.getKeyFrame(animTimer, true), t.x, t.y, carSprite.getHeight(), carSprite.getHeight());
+            batch.setColor(1f, 1f, 1f, 1f);
         }
+        if (hp <= 1) {
+            Vector2 t = carPos.cpy().sub(carSprite.getHeight() / 2f, carSprite.getHeight() / 2f);
+            batch.draw(fireAnimation.getKeyFrame(animTimer, true), t.x, t.y, carSprite.getHeight(), carSprite.getHeight());
+            t = carPos.cpy().sub(carSprite.getHeight() / 2f, carSprite.getHeight() / 2f).add(new Vector2(carSprite.getHeight(), 0f).setAngleDeg(dir));
+            batch.draw(fireAnimation.getKeyFrame(animTimer, true), t.x, t.y, carSprite.getHeight(), carSprite.getHeight());
+            t = carPos.cpy().sub(carSprite.getHeight() / 2f, carSprite.getHeight() / 2f).add(new Vector2(carSprite.getHeight(), 0f).setAngleDeg(dir + 180));
+            batch.draw(fireAnimation.getKeyFrame(animTimer, true), t.x, t.y, carSprite.getHeight(), carSprite.getHeight());
+        }
+
+
         if (playerState == PlayerState.manEscape) {
             manSprite.setPosition(manPos.x, manPos.y);
             manSprite.draw(batch);

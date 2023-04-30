@@ -16,4 +16,5 @@ public abstract class PlayerController {
 
     public abstract float humanMove();
 
+    public abstract void update();
 }

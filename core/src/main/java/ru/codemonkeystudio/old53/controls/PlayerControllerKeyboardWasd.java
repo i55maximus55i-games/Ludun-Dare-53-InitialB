@@ -45,4 +45,8 @@ public class PlayerControllerKeyboardWasd extends PlayerController {
     public float humanMove() {
         return 0;
     }
+
+    @Override
+    public void update() {}
+
 }
