@@ -1,20 +1,29 @@
 package ru.codemonkeystudio.old53;
 
-import de.eskalon.commons.core.ManagedGame;
-import de.eskalon.commons.screen.ManagedScreen;
-import de.eskalon.commons.screen.transition.ScreenTransition;
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
+import ru.codemonkeystudio.old53.controls.ControlManager;
 import ru.codemonkeystudio.old53.screens.GameScreen;
 
-/** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
-public class Application extends ManagedGame<ManagedScreen, ScreenTransition> {
+/**
+ * {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms.
+ */
+public class Application extends Game {
+
+    public static ControlManager controlManager;
 
     @Override
     public void create() {
-        super.create();
+        controlManager = new ControlManager();
+        setScreen(new GameScreen());
+    }
 
-        screenManager.addScreen("Game", new GameScreen());
-
-        screenManager.pushScreen("Game", null);
+    @Override
+    public void render() {
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        super.render();
     }
 
 }

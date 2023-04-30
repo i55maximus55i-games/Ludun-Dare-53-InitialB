@@ -1,57 +1,77 @@
 package ru.codemonkeystudio.old53.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import de.eskalon.commons.screen.ManagedScreen;
+import ru.codemonkeystudio.old53.controls.ControlManager;
+import ru.codemonkeystudio.old53.controls.PlayerController;
+import ru.codemonkeystudio.old53.controls.PlayerControllerKeyboardWasd;
+import ru.codemonkeystudio.old53.game.Sun;
+import ru.codemonkeystudio.old53.game.GameRender;
+import ru.codemonkeystudio.old53.game.House;
+import ru.codemonkeystudio.old53.game.Player;
 
-public class GameScreen extends ManagedScreen {
+import java.util.ArrayList;
 
-    ShapeRenderer shapeRenderer;
-    SpriteBatch spriteBatch;
+public class GameScreen implements Screen {
 
-    OrthographicCamera camera = new OrthographicCamera();
-    ScreenViewport screenViewport = new ScreenViewport(camera);
+    ArrayList<PlayerController> playerControllers;
 
-    Texture texture = new Texture("Car.png");
+    GameRender gameRender;
+    public ArrayList<Player> players;
+    public House house;
+    public Sun sun;
+
+    public GameScreen() {
+        playerControllers = new ArrayList<>();
+        playerControllers.add(new PlayerControllerKeyboardWasd());
+
+        players = new ArrayList<>();
+        players.add(new Player(playerControllers.get(0), "Ae68", 0));
+
+        house = new House();
+        gameRender = new GameRender(this);
+
+        sun = new Sun();
+    }
 
     @Override
-    protected void create() {
-        shapeRenderer = new ShapeRenderer();
-        spriteBatch = new SpriteBatch();
+    public void show() {
+        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     @Override
     public void hide() {
-
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
-        shapeRenderer.setProjectionMatrix(camera.combined);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Color.BLUE);
-        shapeRenderer.rect(0, 0, Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f);
-        shapeRenderer.end();
-
-        spriteBatch.setProjectionMatrix(camera.combined);
-        spriteBatch.begin();
-        spriteBatch.draw(texture, 0, 0);
-        spriteBatch.end();
+        for (Player player : players) {
+            player.update(delta);
+        }
+        gameRender.draw();
     }
 
     @Override
     public void resize(int width, int height) {
-        screenViewport.update(width / 2, height / 2, true);
+        gameRender.resize(width, height);
+        house.resize();
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+
     }
 
     @Override
     public void dispose() {
 
     }
+
 }
