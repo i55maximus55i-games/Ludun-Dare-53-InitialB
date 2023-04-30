@@ -7,8 +7,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import ru.codemonkeystudio.old53.screens.GameScreen;
 
-import java.util.ArrayList;
-
 
 public class GameRender {
 
@@ -21,12 +19,16 @@ public class GameRender {
 
     GameScreen gameScreen;
 
+    Texture backTexture;
+
     public GameRender(GameScreen gameScreen) {
         camera = new OrthographicCamera();
         camera.setToOrtho(false);
         viewport = new ScreenViewport(camera);
 
         batch = new SpriteBatch();
+
+        backTexture = new Texture("bghd2.png");
 
         this.gameScreen = gameScreen;
     }
@@ -35,6 +37,7 @@ public class GameRender {
         batch.setProjectionMatrix(viewport.getCamera().combined);
         batch.begin();
         {
+            batch.draw(backTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             gameScreen.sun.draw(batch);
             for (Bullet bullet: gameScreen.bullets) {
                 bullet.draw(batch);

@@ -41,12 +41,12 @@ public class PlayerControllerGamepad extends PlayerController implements Control
 
     @Override
     public boolean useParachute() {
-        return false;
+        return justPressed(controller.getMapping().buttonA);
     }
 
     @Override
     public float humanMove() {
-        return 0;
+        return controller.getAxis(controller.getMapping().axisLeftX);
     }
 
 

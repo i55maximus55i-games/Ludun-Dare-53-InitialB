@@ -34,11 +34,16 @@ public class Player {
     float animTimer = 0f;
     Texture fire;
     Animation<TextureRegion> fireAnimation;
+    Texture smoke;
+    Animation<TextureRegion> smokeAnimation;
 
     // Man
     Vector2 manPos = new Vector2();
     Vector2 manSpeed = new Vector2();
     boolean manAlive = true;
+    boolean parachuteOpen = false;
+    boolean parachuteAlive = true;
+    Texture parachuteTexture;
 
     Texture manTexture;
     Sprite manSprite;
@@ -68,6 +73,19 @@ public class Player {
         }
         fireAnimation = new Animation<>(0.03f, fireFrames);
 
+        smoke = new Texture("smoke.png");
+        tmp = TextureRegion.split(smoke, 32, 32);
+        TextureRegion[] smokeFrames = new TextureRegion[8];
+        index = 0;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 1; j++) {
+                smokeFrames[index++] = tmp[i][j];
+            }
+        }
+        smokeAnimation = new Animation<>(0.1f, smokeFrames);
+
+        parachuteTexture = new Texture("parachute.png");
+
         this.playerController = playerController;
     }
 
@@ -86,7 +104,8 @@ public class Player {
             engine += playerController.throttle() * delta;
             engine = MathUtils.clamp(engine, 0f, 1f);
             // Движение
-            carPos.add(new Vector2(engine * 500f * delta, 0f).setAngleDeg(dir));
+            carSpeed.set(new Vector2(engine * 500f * delta, 0f).setAngleDeg(dir));
+            carPos.add(carSpeed);
             if (carPos.x > Gdx.graphics.getWidth()) carPos.x = carPos.x % Gdx.graphics.getWidth();
             if (carPos.x < 0) carPos.x = Gdx.graphics.getWidth();
             if (carPos.y > Gdx.graphics.getHeight()) carPos.y = Gdx.graphics.getHeight();
@@ -103,14 +122,32 @@ public class Player {
             if (playerController.escape()) {
                 manPos = carPos.cpy();
                 // TODO: 30.04.2023 Дать импульс на выброс из кабины
+                manSpeed.set(carSpeed).add(new Vector2(5, 0).setAngleDeg(dir + 90));
                 playerState = PlayerState.manEscape;
             }
         } else if (playerState == PlayerState.manEscape) {
-            // TODO: 30.04.2023 Физика
-            // TODO: 29.04.2023 Мужик летит, может открыть парашют, может ноги в жопу вбить
-            // TODO: 29.04.2023 Можно на парашюте двигаться влево/вправо
+            if (!parachuteOpen) {
+                if (parachuteAlive && playerController.useParachute()) {
+                    parachuteOpen = true;
+                }
+                manSpeed.add(0, -15 * delta);
+            } else {
+                if (manSpeed.y < -2) {
+                    manSpeed.y += 60 * delta;
+                } else {
+                    manSpeed.y -= 60 * delta;
+                }
+
+                if (manSpeed.x < 0) {
+                    manSpeed.x += 10 * delta;
+                } else {
+                    manSpeed.x -= 10 * delta;
+                }
+                manSpeed.x += playerController.humanMove() * 11 * delta;
+            }
+            manPos.add(manSpeed);
+            // TODO: 29.04.2023 Мужик может ноги в жопу вбить
             // TODO: 30.04.2023 Смэрть
-        } else if (playerState == PlayerState.manMove) {
             // TODO: 29.04.2023 Мужик на земле, можно ходить, можно зайти в ангар и сесть в машину
         }
     }
@@ -120,17 +157,17 @@ public class Player {
         carSprite.setPosition(carPos.x - carSprite.getWidth() / 2f, carPos.y - carSprite.getHeight() / 2f);
         carSprite.setOrigin(carSprite.getWidth() / 2, carSprite.getHeight() / 2);
         carSprite.setRotation(dir);
-        carSprite.draw(batch); // TODO: 30.04.2023 Рисовать повреждения
+        carSprite.draw(batch);
 
         if (hp == 2) {
-            batch.setColor(0.1f, 0.1f, 0.1f, 1f);
+//            batch.setColor(0.1f, 0.1f, 0.1f, 1f);
             Vector2 t = carPos.cpy().sub(carSprite.getHeight() / 2f, carSprite.getHeight() / 2f);
-            batch.draw(fireAnimation.getKeyFrame(animTimer, true), t.x, t.y, carSprite.getHeight(), carSprite.getHeight());
+            batch.draw(smokeAnimation.getKeyFrame(animTimer, true), t.x, t.y, carSprite.getHeight(), carSprite.getHeight());
             t = carPos.cpy().sub(carSprite.getHeight() / 2f, carSprite.getHeight() / 2f).add(new Vector2(carSprite.getHeight(), 0f).setAngleDeg(dir));
-            batch.draw(fireAnimation.getKeyFrame(animTimer, true), t.x, t.y, carSprite.getHeight(), carSprite.getHeight());
+            batch.draw(smokeAnimation.getKeyFrame(animTimer, true), t.x, t.y, carSprite.getHeight(), carSprite.getHeight());
             t = carPos.cpy().sub(carSprite.getHeight() / 2f, carSprite.getHeight() / 2f).add(new Vector2(carSprite.getHeight(), 0f).setAngleDeg(dir + 180));
-            batch.draw(fireAnimation.getKeyFrame(animTimer, true), t.x, t.y, carSprite.getHeight(), carSprite.getHeight());
-            batch.setColor(1f, 1f, 1f, 1f);
+            batch.draw(smokeAnimation.getKeyFrame(animTimer, true), t.x, t.y, carSprite.getHeight(), carSprite.getHeight());
+//            batch.setColor(1f, 1f, 1f, 1f);
         }
         if (hp <= 1) {
             Vector2 t = carPos.cpy().sub(carSprite.getHeight() / 2f, carSprite.getHeight() / 2f);
@@ -144,6 +181,7 @@ public class Player {
 
         if (playerState == PlayerState.manEscape) {
             manSprite.setPosition(manPos.x, manPos.y);
+            if (parachuteOpen) batch.draw(parachuteTexture, manSprite.getX(), manSprite.getY());
             manSprite.draw(batch);
             // TODO: 30.04.2023 Парашют
         }
