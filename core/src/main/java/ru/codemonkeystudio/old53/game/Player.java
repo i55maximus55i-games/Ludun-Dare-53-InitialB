@@ -53,8 +53,12 @@ public class Player {
     PlayerController playerController;
     public int score;
 
-    public Player(PlayerController playerController, String car, int player, ArrayList<Bullet> bullets) {
+    Vector2 startPos;
+
+    public Player(PlayerController playerController, String car, int player, ArrayList<Bullet> bullets, Vector2 startPos) {
         this.bullets = bullets;
+        this.startPos = startPos;
+        carPos.set(startPos);
 
         carTexture = new Texture(car + ".png");
         carSprite = new Sprite(carTexture);
@@ -106,7 +110,7 @@ public class Player {
             engine += playerController.throttle() * delta;
             engine = MathUtils.clamp(engine, 0f, 1f);
             // Движение
-            carSpeed.set(new Vector2(engine * 500f * delta, 0f).setAngleDeg(dir));
+            carSpeed.set(new Vector2(engine * delta * 700, 0f).setAngleDeg(dir));
             carPos.add(carSpeed);
             if (carPos.x > Gdx.graphics.getWidth()) carPos.x = carPos.x % Gdx.graphics.getWidth();
             if (carPos.x < 0) carPos.x = Gdx.graphics.getWidth();
@@ -128,6 +132,9 @@ public class Player {
             if (playerController.escape()) {
                 manPos = carPos.cpy();
                 manSpeed.set(carSpeed).add(new Vector2(5, 0).setAngleDeg(dir + 90));
+                downFrom = dir;
+                downTo = 270;
+                downProgress = 0;
                 playerState = PlayerState.manEscape;
             }
         } else if (playerState == PlayerState.manEscape) {
@@ -170,7 +177,7 @@ public class Player {
                 manPos.x += playerController.humanMove() * delta * 200f;
                 if (Math.abs(manPos.x - Gdx.graphics.getWidth() / 2f) < 128f) {
                     hp = 3;
-                    carPos.set(0, 0);
+                    carPos.set(startPos);
                     playerState = PlayerState.carStand;
                     dir = 0f;
                     parachuteOpen = false;
@@ -184,7 +191,7 @@ public class Player {
             if (playerController.start()) {
                 score = 0;
                 hp = 3;
-                carPos.set(0, 0);
+                carPos.set(startPos);
                 playerState = PlayerState.carStand;
                 dir = 0f;
                 parachuteOpen = false;
@@ -193,7 +200,17 @@ public class Player {
                 manAlive = true;
             }
         }
+
+        if (playerState == PlayerState.manEscape) {
+            downProgress += delta * 2;
+            if (downProgress > 1f) downProgress = 1f;
+            dir = MathUtils.lerpAngleDeg(downFrom, -90, downProgress);
+            carPos.add(new Vector2(300f * delta, 0f). setAngleDeg(dir));
+        }
     }
+    float downFrom;
+    float downTo;
+    float downProgress;
 
     void draw(SpriteBatch batch) {
         // Car render
