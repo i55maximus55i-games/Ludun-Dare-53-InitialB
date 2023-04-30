@@ -7,10 +7,7 @@ import de.eskalon.commons.screen.ManagedScreen;
 import ru.codemonkeystudio.old53.controls.ControlManager;
 import ru.codemonkeystudio.old53.controls.PlayerController;
 import ru.codemonkeystudio.old53.controls.PlayerControllerKeyboardWasd;
-import ru.codemonkeystudio.old53.game.Sun;
-import ru.codemonkeystudio.old53.game.GameRender;
-import ru.codemonkeystudio.old53.game.House;
-import ru.codemonkeystudio.old53.game.Player;
+import ru.codemonkeystudio.old53.game.*;
 
 import java.util.ArrayList;
 
@@ -20,6 +17,7 @@ public class GameScreen implements Screen {
 
     GameRender gameRender;
     public ArrayList<Player> players;
+    public ArrayList<Bullet> bullets;
     public House house;
     public Sun sun;
 
@@ -28,7 +26,8 @@ public class GameScreen implements Screen {
         playerControllers.add(new PlayerControllerKeyboardWasd());
 
         players = new ArrayList<>();
-        players.add(new Player(playerControllers.get(0), "Ae68", 0));
+        bullets = new ArrayList<>();
+        players.add(new Player(playerControllers.get(0), "Ae68", 0, bullets));
 
         house = new House();
         gameRender = new GameRender(this);
@@ -50,6 +49,10 @@ public class GameScreen implements Screen {
         for (Player player : players) {
             player.update(delta);
         }
+        for (Bullet bullet : bullets) {
+            bullet.update(players, delta);
+        }
+        bullets.removeIf(bullet -> !bullet.alive);
         gameRender.draw();
     }
 

@@ -36,6 +36,9 @@ public class GameRender {
         batch.begin();
         {
             gameScreen.sun.draw(batch);
+            for (Bullet bullet: gameScreen.bullets) {
+                bullet.draw(batch);
+            }
             for (Player player : gameScreen.players) {
                 player.draw(batch);
             }

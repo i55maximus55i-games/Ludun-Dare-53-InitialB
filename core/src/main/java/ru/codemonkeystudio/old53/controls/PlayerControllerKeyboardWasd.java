@@ -28,7 +28,7 @@ public class PlayerControllerKeyboardWasd extends PlayerController {
 
     @Override
     public boolean fire() {
-        return false;
+        return Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
     }
 
     @Override
