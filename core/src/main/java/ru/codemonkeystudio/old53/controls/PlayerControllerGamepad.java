@@ -10,7 +10,7 @@ public class PlayerControllerGamepad extends PlayerController implements Control
 
     @Override
     public boolean start() {
-        return false;
+        return justPressed(controller.getMapping().buttonStart);
     }
 
     @Override

@@ -21,6 +21,8 @@ public class GameScreen implements Screen {
         bullets = new ArrayList<>();
         players.add(new Player(Application.controlManager.playerControllers.get(0), "Ae68", 0, bullets));
         players.add(new Player(Application.controlManager.playerControllers.get(1), "r32", 1, bullets));
+        players.add(new Player(Application.controlManager.playerControllers.get(2), "rx7fd", 2, bullets));
+        players.add(new Player(Application.controlManager.playerControllers.get(3), "Wrxsti", 3, bullets));
 
         house = new House();
         gameRender = new GameRender(this);

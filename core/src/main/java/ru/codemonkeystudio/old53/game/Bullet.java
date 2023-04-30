@@ -28,11 +28,22 @@ public class Bullet {
             if (player == whoShoot) continue;
             if (pos.dst(player.carPos) < player.carTexture.getHeight() / 2f) {
                 player.hp--;
+                if (player.hp == 0 && (player.playerState == PlayerState.carFly || player.playerState == PlayerState.carStand)) {
+                    whoShoot.score++;
+                }
                 alive = false;
             }
             if (player.playerState == PlayerState.manEscape) {
-                // TODO: 30.04.2023 Сбить парашют
-                // TODO: 30.04.2023 Убить челика
+                if (pos.dst(player.manPos.x, player.manPos.y + player.manTexture.getHeight() / 2f) < player.manTexture.getHeight() / 2f) {
+                    whoShoot.score += 2;
+                    alive = false;
+                    player.manAlive = false;
+                }
+                if (pos.dst(player.manPos.x, player.manPos.y + player.manTexture.getHeight() / 2f + 60f) < player.manTexture.getHeight() / 2f) {
+                    alive = false;
+                    player.parachuteOpen = false;
+                    player.parachuteAlive = false;
+                }
             }
         }
         if (pos.x < 0f) alive = false;

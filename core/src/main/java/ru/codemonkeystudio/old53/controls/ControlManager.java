@@ -10,7 +10,7 @@ public class ControlManager {
     public ArrayList<PlayerController> playerControllers = new ArrayList<>();
 
     public ControlManager() {
-        playerControllers.add(new PlayerControllerKeyboardWasd());
+//        playerControllers.add(new PlayerControllerKeyboardWasd());
 
         for (Controller controller : Controllers.getControllers()) {
             PlayerControllerGamepad pc = new PlayerControllerGamepad(controller);
